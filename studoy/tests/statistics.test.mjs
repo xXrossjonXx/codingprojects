@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import stats from '../.test-build/statistics.js';
+const {studyStatistics}=stats;
+const make=(year,month,day,minutes=60)=>({id:`${year}-${month}-${day}`,course_id:'c',started_at:new Date(year,month,day,10).toISOString(),ended_at:new Date(+new Date(year,month,day,10)+minutes*60000).toISOString(),duration_minutes:minutes,segments:[]});
+const now=new Date(2026,9,1,15);
+test('All time includes old sessions and empty months',()=>{const s=studyStatistics([make(2025,0,1),make(2026,8,30)],[],'all',now);assert.equal(s.total,120);assert.equal(s.count,2);assert.equal(s.buckets.length,22);assert.equal(s.buckets[1].minutes,0);assert.equal(s.buckets.reduce((n,b)=>n+b.minutes,0),120);});
+test('Three months is current month and previous two calendar months',()=>{const s=studyStatistics([make(2026,6,31),make(2026,7,1),make(2026,9,1)],[],'3',now);assert.equal(s.start.getMonth(),7);assert.equal(s.count,2);assert.equal(s.total,120);assert.equal(s.buckets.length,3);});
+test('Long histories switch to yearly buckets without discarding sessions',()=>{const s=studyStatistics([make(2020,0,1),make(2026,9,1)],[],'all',now);assert.equal(s.yearly,true);assert.equal(s.buckets.length,7);assert.equal(s.total,120);assert.equal(s.buckets.reduce((n,b)=>n+b.minutes,0),120);});
+test('New courses are not charged for weeks before creation',()=>{const c={id:'c',name:'Math',created_at:new Date(2026,8,21).toISOString(),weekly_goal_minutes:60};const s=studyStatistics([make(2025,0,1),make(2026,8,22)],[c],'all',now);assert.equal(s.ranked[0].completed,1);assert.equal(s.ranked[0].reached,1);});
+test('Month crossing sessions split cleanly and totals match buckets',()=>{const a=new Date(2026,6,31,23,30),b=new Date(2026,7,1,0,30);const row={...make(2026,6,31),started_at:a.toISOString(),ended_at:b.toISOString()};const s=studyStatistics([row],[],'3',now);assert.equal(s.total,30);assert.equal(s.average,30);assert.equal(s.buckets[0].minutes,30);});

@@ -53,12 +53,12 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_public_key
 Run the SQL migration in Supabase as explained above, then:
 
 ```bash
-pnpm dev:next
+pnpm dev
 ```
 
 Open http://localhost:3000. Stop with Ctrl+C. If Corepack is unavailable, install pnpm with `npm install -g pnpm` first. On Windows, copy `.env.example` to `.env.local` in File Explorer instead of using `cp`.
 
-The default `dev` script is retained for the managed Sites preview. **Use `dev:next` for local Next.js development.** The production `build` script uses actual Next.js, not the Sites preview framework.
+Use `pnpm dev` for local development. The production build exports the app to `out/`.
 
 ## Verify
 
@@ -77,7 +77,7 @@ Cloud integration must also be checked against your configured project: create t
 
 1. Create a GitHub repository and upload the project files, including `pnpm-lock.yaml`. Do **not** upload `.env.local` or `node_modules`.
 2. Open https://vercel.com → Add New → Project and import the repository.
-3. Choose **Next.js**. Set the build command to `pnpm build`. The project uses `output: 'export'`; its static output is `out`.
+3. Set **Root Directory** to `studoy`. Choose **Next.js**. Set the build command to `pnpm build`. The project uses `output: 'export'`; its static output is `out`.
 4. Add both `NEXT_PUBLIC_…` environment variables above. They are public build-time configuration; no service-role key is required.
 5. Deploy, then add the new origin as your Supabase Authentication Site URL.
 6. Create an account and perform the cloud checks above before relying on the tracker.
@@ -123,6 +123,4 @@ Statistics defaults to all time, beginning with the month of the earliest sessio
 
 The project is named Studoy (like duh doy), with package name `studoy` and download `studoy-source.zip`. The original migration filename and browser authentication-storage keys are retained for compatibility with existing setups.
 
-## Deploy this GitHub folder
-
-On Vercel, import `xXrossjonXx/codingprojects`, set **Root Directory** to `studoy`, select **Next.js**, use `pnpm build`, and add the two environment variables from `.env.example`. The Supabase migration must be run once in your own project.
+This standalone GitHub copy contains the Studoy application and Supabase migration. It excludes the preview platform’s connector, authentication, and deployment tooling.
